@@ -1,0 +1,45 @@
+# =============================================================
+# RAG 私有知识库配置文件
+# 关键项可被环境变量覆盖（见 src/config.py）：
+#   OPENAI_API_KEY / OPENAI_BASE_URL / LLM_MODEL
+# =============================================================
+
+embedding:
+  # 可替换为任意 sentence-transformers 模型，如 BAAI/bge-large-zh-v1.5
+  model_name: "BAAI/bge-small-zh-v1.5"
+  device: "cpu"        # cpu / cuda
+  normalize: true      # 归一化向量，使 FAISS 内积等价于余弦相似度
+
+splitter:
+  chunk_size: 500      # 切块长度（字符）
+  chunk_overlap: 50    # 相邻块重叠长度
+  separators:
+    - "\n\n"
+    - "\n"
+    - "。"
+    - "！"
+    - "？"
+    - "；"
+    - " "
+    - ""
+
+vector_store:
+  index_dir: "data/faiss_index"   # 向量索引与原文的持久化目录
+  top_k: 5                        # 默认召回数量
+
+llm:
+  # OpenAI 兼容接口（OpenAI / DeepSeek / 通义千问 / Kimi 等均可）
+  provider: "openai_compatible"
+  base_url: "https://api.deepseek.com/v1"
+  api_key: ""                     # 建议通过环境变量 OPENAI_API_KEY 注入
+  model: "deepseek-chat"
+  temperature: 0.3
+  max_tokens: 1024
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+
+webui:
+  host: "0.0.0.0"
+  port: 8501

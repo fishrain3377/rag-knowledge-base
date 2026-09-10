@@ -1,0 +1,15 @@
+# Streamlit 社区云部署依赖（社区云按本文件安装）
+langchain>=0.2.0
+langchain-openai>=0.1.0
+langchain-text-splitters>=0.2.0
+faiss-cpu>=1.8.0
+sentence-transformers>=2.5.0
+pypdf>=4.0.0
+streamlit>=1.32.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+# 仅本地 API 服务需要（社区云只跑 WebUI，保留以保证 requirements 与 pyproject 一致）
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9

@@ -1,0 +1,30 @@
+services:
+  api:
+    build: .
+    container_name: rag-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./configs:/app/configs
+    env_file:
+      - path: .env
+        required: false
+    command: uvicorn api_server:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+
+  webui:
+    build: .
+    container_name: rag-webui
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./configs:/app/configs
+    env_file:
+      - path: .env
+        required: false
+    command: streamlit run src/webui.py --server.address 0.0.0.0 --server.port 8501
+    restart: unless-stopped
+    depends_on:
+      - api
