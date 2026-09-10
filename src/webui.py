@@ -48,7 +48,13 @@ def init_components() -> Dict:
         separators=config["splitter"].get("separators"),
     )
     rag_chain = RAGChain(embedding, vector_store, config["llm"])
-    return {"config": config, "store": vector_store, "splitter": splitter, "chain": rag_chain}
+    return {
+        "config": config,
+        "embedding": embedding,
+        "store": vector_store,
+        "splitter": splitter,
+        "chain": rag_chain,
+    }
 
 
 def handle_upload(uploaded_file) -> Optional[Dict]:
