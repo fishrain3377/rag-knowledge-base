@@ -1,6 +1,5 @@
 """RAG 问答链路：问题向量化 -> 向量召回 -> 构建 Prompt -> LLM 生成 -> 返回答案与引用。"""
 
-from typing import Dict, List
 
 from langchain_openai import ChatOpenAI
 
@@ -29,7 +28,7 @@ class RAGChain:
         self,
         embedding_model: EmbeddingModel,
         vector_store: FaissStore,
-        llm_config: Dict,
+        llm_config: dict,
     ):
         self.embedding_model = embedding_model
         self.vector_store = vector_store
@@ -51,7 +50,7 @@ class RAGChain:
     # ------------------------------------------------------------------ #
     # 检索
     # ------------------------------------------------------------------ #
-    def retrieve(self, question: str, top_k: int = 5) -> List[SearchResult]:
+    def retrieve(self, question: str, top_k: int = 5) -> list[SearchResult]:
         """将问题向量化并在向量库中召回最相关的文档块。"""
         query_vec = self.embedding_model.embed_query(question)
         return self.vector_store.search(query_vec, top_k=top_k)
@@ -66,7 +65,7 @@ class RAGChain:
         page = meta.get("page")
         return f"{source} 第{page}页" if page else str(source)
 
-    def _build_prompt(self, question: str, results: List[SearchResult]) -> str:
+    def _build_prompt(self, question: str, results: list[SearchResult]) -> str:
         context_parts = [
             f"[片段{i}] 来源: {self._format_source(r)}\n{r.document.page_content}"
             for i, r in enumerate(results, start=1)
@@ -81,7 +80,7 @@ class RAGChain:
     # ------------------------------------------------------------------ #
     # 端到端问答
     # ------------------------------------------------------------------ #
-    def answer(self, question: str, top_k: int = 5) -> Dict:
+    def answer(self, question: str, top_k: int = 5) -> dict:
         """执行完整 RAG 问答，返回 {question, answer, sources}。
 
         sources 为检索命中的原文片段列表，供前端展示引用来源。

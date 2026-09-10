@@ -1,7 +1,6 @@
 """PDF 文档加载器：基于 pypdf 逐页解析。"""
 
 from pathlib import Path
-from typing import List, Union
 
 from pypdf import PdfReader
 
@@ -16,16 +15,16 @@ class PDFLoader:
         docs = PDFLoader("doc.pdf").load()
     """
 
-    def __init__(self, file_path: Union[str, Path]):
+    def __init__(self, file_path: str | Path):
         self.file_path = Path(file_path)
 
-    def load(self) -> List[Document]:
+    def load(self) -> list[Document]:
         """解析 PDF，返回逐页的 Document 列表（空白页会被跳过）。"""
         if not self.file_path.exists():
             raise FileNotFoundError(f"PDF 文件不存在: {self.file_path}")
 
         reader = PdfReader(str(self.file_path))
-        documents: List[Document] = []
+        documents: list[Document] = []
         for page_num, page in enumerate(reader.pages, start=1):
             text = (page.extract_text() or "").strip()
             if not text:

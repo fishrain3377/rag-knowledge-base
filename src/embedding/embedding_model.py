@@ -1,6 +1,5 @@
 """Embedding 模型封装：将文本转为稠密向量，模型可替换。"""
 
-from typing import List
 
 from sentence_transformers import SentenceTransformer
 
@@ -27,7 +26,7 @@ class EmbeddingModel:
         self.normalize = normalize
         self.model = SentenceTransformer(model_name, device=device)
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         """批量向量化文本。"""
         vectors = self.model.encode(
             texts,
@@ -36,7 +35,7 @@ class EmbeddingModel:
         )
         return [v.tolist() for v in vectors]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         """向量化单条查询。"""
         vector = self.model.encode(
             [text],
@@ -49,7 +48,5 @@ class EmbeddingModel:
     def dimension(self) -> int:
         """模型输出向量维度。"""
         # sentence-transformers >= 4.0 重命名为 get_embedding_dimension，旧版保留原名
-        getter = getattr(self.model, "get_embedding_dimension", None) or getattr(
-            self.model, "get_sentence_embedding_dimension"
-        )
+        getter = getattr(self.model, "get_embedding_dimension", None) or self.model.get_sentence_embedding_dimension
         return int(getter())

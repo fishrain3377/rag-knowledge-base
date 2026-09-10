@@ -1,6 +1,5 @@
 """文本切分器：将长文本切成适合向量化的块（chunk），支持重叠。"""
 
-from typing import List, Optional
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -23,7 +22,7 @@ class TextSplitter:
         self,
         chunk_size: int = 500,
         chunk_overlap: int = 50,
-        separators: Optional[List[str]] = None,
+        separators: list[str] | None = None,
     ):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
@@ -33,16 +32,16 @@ class TextSplitter:
             separators=separators if separators is not None else DEFAULT_SEPARATORS,
         )
 
-    def split_text(self, text: str) -> List[str]:
+    def split_text(self, text: str) -> list[str]:
         """将单段文本切分为字符串块列表。"""
         return self._splitter.split_text(text)
 
-    def split_documents(self, documents: List[Document]) -> List[Document]:
+    def split_documents(self, documents: list[Document]) -> list[Document]:
         """将 Document 列表切分为更小的 Document 块，保留并扩充元信息。
 
         每个块都会继承原文档的 metadata，并新增 ``chunk_id`` 便于溯源。
         """
-        chunks: List[Document] = []
+        chunks: list[Document] = []
         for doc in documents:
             for chunk_text in self._splitter.split_text(doc.page_content):
                 chunks.append(

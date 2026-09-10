@@ -14,7 +14,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 import yaml
 from dotenv import load_dotenv
@@ -30,17 +30,17 @@ _ENV_OVERRIDES = {
 }
 
 
-def _load_streamlit_secrets() -> Dict[str, str]:
+def _load_streamlit_secrets() -> dict[str, str]:
     """读取 Streamlit Secrets；非 Streamlit 运行时（如 API 服务/测试）安全返回空字典。"""
     try:
         import streamlit as st
 
         return {str(k): str(v) for k, v in st.secrets.items()}
-    except Exception:
+    except Exception:  # noqa: BLE001 - 非 Streamlit 运行环境（API/测试）下安全降级
         return {}
 
 
-def load_config(config_path: Union[str, Path, None] = None) -> Dict[str, Any]:
+def load_config(config_path: str | Path | None = None) -> dict[str, Any]:
     """加载配置并依次叠加 Streamlit Secrets、环境变量，返回嵌套字典。"""
     load_dotenv(PROJECT_ROOT / ".env")
     st_secrets = _load_streamlit_secrets()
@@ -55,7 +55,7 @@ def load_config(config_path: Union[str, Path, None] = None) -> Dict[str, Any]:
         raise FileNotFoundError(f"配置文件不存在: {path}")
 
     with open(path, "r", encoding="utf-8") as f:
-        config: Dict[str, Any] = yaml.safe_load(f) or {}
+        config: dict[str, Any] = yaml.safe_load(f) or {}
 
     llm = config.setdefault("llm", {})
     for key, env_name in _ENV_OVERRIDES.items():

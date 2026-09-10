@@ -1,7 +1,7 @@
 """文档加载器模块：将 PDF / Markdown 等原始文档解析为统一的 Document 对象。"""
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any
 
 # 注意：Document 必须在本模块其余导入之前定义，
 # 避免子模块（pdf_loader / md_loader）反向导入时出现循环导入。
@@ -17,10 +17,10 @@ class Document:
     """
 
     page_content: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
-from .md_loader import MarkdownLoader  # noqa: E402
-from .pdf_loader import PDFLoader  # noqa: E402
+from .md_loader import MarkdownLoader
+from .pdf_loader import PDFLoader
 
-__all__ = ["Document", "PDFLoader", "MarkdownLoader"]
+__all__ = ["Document", "MarkdownLoader", "PDFLoader"]

@@ -2,7 +2,6 @@
 
 import re
 from pathlib import Path
-from typing import List, Tuple, Union
 
 from . import Document
 
@@ -15,10 +14,10 @@ class MarkdownLoader:
 
     _HEADING_RE = re.compile(r"^(#{1,4})\s+(.+)$", re.MULTILINE)
 
-    def __init__(self, file_path: Union[str, Path]):
+    def __init__(self, file_path: str | Path):
         self.file_path = Path(file_path)
 
-    def load(self) -> List[Document]:
+    def load(self) -> list[Document]:
         if not self.file_path.exists():
             raise FileNotFoundError(f"Markdown 文件不存在: {self.file_path}")
 
@@ -40,13 +39,13 @@ class MarkdownLoader:
         return documents
 
     @classmethod
-    def _split_by_headings(cls, text: str) -> List[Tuple[str, str]]:
+    def _split_by_headings(cls, text: str) -> list[tuple[str, str]]:
         """按 Markdown 标题切分，返回 [(标题, 正文)] 列表；无标题时返回单块。"""
         matches = list(cls._HEADING_RE.finditer(text))
         if not matches:
             return [("", text.strip())]
 
-        sections: List[Tuple[str, str]] = []
+        sections: list[tuple[str, str]] = []
         for idx, match in enumerate(matches):
             start = match.start()
             end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)

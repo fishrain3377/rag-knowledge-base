@@ -8,7 +8,6 @@
 
 import json
 from pathlib import Path
-from typing import List, Optional, Union
 
 import faiss
 import numpy as np
@@ -35,16 +34,16 @@ class FaissStore:
         index_dir: 索引持久化目录；为 None 时仅驻留内存。
     """
 
-    def __init__(self, dimension: int, index_dir: Optional[Union[str, Path]] = None):
+    def __init__(self, dimension: int, index_dir: str | Path | None = None):
         self.dimension = dimension
         self.index = faiss.IndexFlatIP(dimension)
-        self.documents: List[Document] = []
+        self.documents: list[Document] = []
         self.index_dir = Path(index_dir) if index_dir else None
 
     # ------------------------------------------------------------------ #
     # 写入
     # ------------------------------------------------------------------ #
-    def add_documents(self, documents: List[Document], embeddings: List[List[float]]) -> None:
+    def add_documents(self, documents: list[Document], embeddings: list[list[float]]) -> None:
         """批量写入文档与对应向量，二者顺序必须一致。"""
         if len(documents) != len(embeddings):
             raise ValueError(f"documents 与 embeddings 数量不一致: {len(documents)} != {len(embeddings)}")
@@ -61,7 +60,7 @@ class FaissStore:
     # ------------------------------------------------------------------ #
     # 检索
     # ------------------------------------------------------------------ #
-    def search(self, query_embedding: List[float], top_k: int = 5) -> List[SearchResult]:
+    def search(self, query_embedding: list[float], top_k: int = 5) -> list[SearchResult]:
         """按查询向量召回 top_k 个最相似文档块，返回按得分降序的结果。"""
         if self.index.ntotal == 0:
             return []
@@ -70,7 +69,7 @@ class FaissStore:
         k = min(max(top_k, 1), self.index.ntotal)
         scores, indices = self.index.search(vector, k)
 
-        results: List[SearchResult] = []
+        results: list[SearchResult] = []
         for score, idx in zip(scores[0], indices[0]):
             if idx < 0:  # FAISS 用 -1 表示无结果
                 continue
@@ -80,7 +79,7 @@ class FaissStore:
     # ------------------------------------------------------------------ #
     # 持久化
     # ------------------------------------------------------------------ #
-    def save(self, index_dir: Optional[Union[str, Path]] = None) -> Path:
+    def save(self, index_dir: str | Path | None = None) -> Path:
         """将索引与原文写入磁盘，返回写入目录。"""
         target = Path(index_dir) if index_dir else self.index_dir
         if target is None:
@@ -102,7 +101,7 @@ class FaissStore:
         return target
 
     @classmethod
-    def load(cls, index_dir: Union[str, Path]) -> "FaissStore":
+    def load(cls, index_dir: str | Path) -> "FaissStore":
         """从磁盘加载向量库；目录中缺少任一文件时抛出 FileNotFoundError。"""
         index_dir = Path(index_dir)
         index_file = index_dir / "vectors.index"

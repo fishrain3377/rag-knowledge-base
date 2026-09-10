@@ -9,7 +9,6 @@
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Dict, List
 
 import uvicorn
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -40,10 +39,10 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     question: str
     answer: str
-    sources: List[Dict]
+    sources: list[dict]
 
 
-def _init_components() -> Dict:
+def _init_components() -> dict:
     """加载配置并初始化全部组件（embedding / 向量库 / 切分器 / RAG 链路）。"""
     config = load_config()
 
@@ -78,13 +77,13 @@ embedding_model = components["embedding"]
 
 
 @app.get("/health")
-def health() -> Dict:
+def health() -> dict:
     """健康检查：返回服务状态与当前知识库文档块数量。"""
     return {"status": "ok", "documents": len(vector_store)}
 
 
 @app.post("/upload")
-def upload(file: UploadFile = File(...)) -> Dict:
+def upload(file: UploadFile = File(...)) -> dict:  # noqa: B008 - FastAPI 依赖注入的标准写法
     """上传 PDF / Markdown 文档，解析、切分、向量化后写入知识库。"""
     filename = file.filename or ""
     suffix = Path(filename).suffix.lower()
@@ -98,7 +97,7 @@ def upload(file: UploadFile = File(...)) -> Dict:
             shutil.copyfileobj(file.file, tmp)
             tmp_path = tmp.name
 
-        documents: List[Document] = loader_cls(tmp_path).load()
+        documents: list[Document] = loader_cls(tmp_path).load()
         # 用用户上传的原始文件名替换临时文件路径，保证引用来源可读
         for doc in documents:
             doc.metadata["source"] = filename
@@ -113,7 +112,7 @@ def upload(file: UploadFile = File(...)) -> Dict:
         return {"filename": filename, "chunks": len(chunks), "total_documents": len(vector_store)}
     except HTTPException:
         raise
-    except Exception as exc:  # noqa: BLE001 - 统一转换为 500，避免向客户端泄露堆栈
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=f"处理失败: {exc}") from exc
     finally:
         if tmp_path:
@@ -121,7 +120,7 @@ def upload(file: UploadFile = File(...)) -> Dict:
 
 
 @app.post("/ask", response_model=AskResponse)
-def ask(req: AskRequest) -> Dict:
+def ask(req: AskRequest) -> dict:
     """基于知识库回答问题，返回答案与引用来源。"""
     question = req.question.strip()
     if not question:

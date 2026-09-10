@@ -8,7 +8,6 @@
 
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import streamlit as st
 
@@ -29,7 +28,7 @@ st.set_page_config(page_title="RAG 私有知识库", page_icon="📚", layout="w
 
 
 @st.cache_resource
-def init_components() -> Dict:
+def init_components() -> dict:
     """初始化全部组件（Streamlit 缓存为单例）。"""
     config = load_config()
     embedding = EmbeddingModel(
@@ -57,7 +56,7 @@ def init_components() -> Dict:
     }
 
 
-def handle_upload(uploaded_file) -> Optional[Dict]:
+def handle_upload(uploaded_file) -> dict | None:
     """处理单次上传：解析 -> 切分 -> 向量化 -> 入库。"""
     filename = uploaded_file.name or ""
     suffix = Path(filename).suffix.lower()
@@ -66,13 +65,13 @@ def handle_upload(uploaded_file) -> Optional[Dict]:
         st.error(f"不支持的格式: {suffix or '无扩展名'}，仅支持 {sorted(LOADERS)}")
         return None
 
-    tmp_path: Optional[str] = None
+    tmp_path: str | None = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             tmp.write(uploaded_file.getbuffer())
             tmp_path = tmp.name
 
-        documents: List[Document] = loader_cls(tmp_path).load()
+        documents: list[Document] = loader_cls(tmp_path).load()
         # 用用户上传的原始文件名替换临时文件路径，保证引用来源可读
         for doc in documents:
             doc.metadata["source"] = filename
@@ -164,7 +163,6 @@ if question:
 
 def main() -> None:
     """命令行入口：python -m webui（实际由 streamlit 驱动）。"""
-    pass
 
 
 if __name__ == "__main__":
